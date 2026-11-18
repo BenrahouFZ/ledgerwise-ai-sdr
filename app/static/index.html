@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>AI Sales Starter</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>body{font-family:system-ui,sans-serif;max-width:640px;margin:2rem auto;padding:0 1rem}
+input,textarea,button{width:100%;margin:.3rem 0;padding:.6rem;font-size:1rem;box-sizing:border-box}
+pre{background:#f3f3f3;padding:1rem;white-space:pre-wrap;border-radius:6px;color:#111}</style></head>
+<body>
+<h1>AI Sales Starter</h1>
+<h3>Ask the assistant</h3>
+<input id="q" placeholder="e.g. How much does the Pro plan cost?">
+<button onclick="ask()">Ask</button>
+<pre id="a"></pre>
+<h3>Score a lead</h3>
+<input id="n" placeholder="Name"><input id="c" placeholder="Company">
+<textarea id="m" placeholder="Lead message"></textarea>
+<button onclick="score()">Score</button>
+<pre id="s"></pre>
+<script>
+async function post(url, body){const r=await fetch(url,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});return r.json();}
+async function ask(){a.textContent="Thinking...";a.textContent=JSON.stringify(await post("/ask",{question:q.value}),null,2);}
+async function score(){s.textContent="Thinking...";s.textContent=JSON.stringify(await post("/score-lead",{name:n.value,company:c.value,message:m.value}),null,2);}
+</script></body></html>

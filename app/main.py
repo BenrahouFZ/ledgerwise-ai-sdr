@@ -5,6 +5,7 @@ from fastapi.responses import FileResponse
 from pydantic import BaseModel
 
 from app import llm, retrieval
+from app.db import get_db
 
 app = FastAPI(title="AI Sales Platform Starter")
 STATIC = Path(__file__).resolve().parent / "static"
@@ -56,3 +57,22 @@ def score_lead(lead: LeadIn):
         return llm.ask_json(prompt, system=system)
     except Exception as e:
         raise HTTPException(500, str(e))
+
+
+@app.get("/companies")
+def list_companies():
+    """All companies, best score first."""
+    rows = get_db().table("companies").select("*").execute().data
+    rows.sort(key=lambda r: (r["score"] if r["score"] is not None else -1), reverse=True)
+    return rows
+
+
+@app.get("/companies/{company_id}")
+def company_detail(company_id: str):
+    """One company with all its evidence (reason, quote, source link)."""
+    db = get_db()
+    found = db.table("companies").select("*").eq("id", company_id).execute().data
+    if not found:
+        raise HTTPException(404, "Company not found")
+    evidence = db.table("evidence").select("*").eq("company_id", company_id).execute().data
+    return {"company": found[0], "evidence": evidence}

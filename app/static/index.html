@@ -3,29 +3,18 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>BrightDesk Sales Desk</title>
+<title>Ledgerwise Sales Desk</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 /* ---------- Design tokens: change these first, everything follows ---------- */
 :root {
-  --ink: #14202b;
-  --muted: #566878;
-  --paper: #f4f6f8;
-  --surface: #ffffff;
-  --line: #d9e1e8;
-  --brand: #0b6e6e;
-  --brand-ink: #ffffff;
-  --brand-soft: #dff0ee;
-  --cold: #4f86b5;
-  --warm: #d99a14;
-  --hot: #d6432b;
-  --error: #b42318;
-  --error-soft: #fdecea;
-  --radius-lg: 14px;
-  --radius-md: 10px;
-  --radius-sm: 6px;
+  --ink: #14202b; --muted: #566878; --paper: #f4f6f8; --surface: #ffffff; --line: #d9e1e8;
+  --brand: #0b6e6e; --brand-ink: #ffffff; --brand-soft: #dff0ee;
+  --cold: #4f86b5; --warm: #b87d0a; --hot: #d6432b; --good: #1f8a4c;
+  --warn-soft: #fbf1d9; --error: #b42318; --error-soft: #fdecea;
+  --radius-lg: 14px; --radius-md: 10px; --radius-sm: 6px;
   --font-display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
   --font-body: "Instrument Sans", "Segoe UI", system-ui, sans-serif;
   color-scheme: light;
@@ -34,384 +23,417 @@
   :root:not([data-theme="light"]) {
     --ink: #e8eef3; --muted: #9aaab8; --paper: #0e151b; --surface: #16202a; --line: #263543;
     --brand: #3fb5ab; --brand-ink: #06201e; --brand-soft: #123532;
-    --cold: #6ba2d1; --warm: #f0b429; --hot: #f26a52;
-    --error: #ff8a7a; --error-soft: #3a1b18; color-scheme: dark;
+    --cold: #6ba2d1; --warm: #f0b429; --hot: #f26a52; --good: #4cc27f;
+    --warn-soft: #3a3014; --error: #ff8a7a; --error-soft: #3a1b18; color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
   --ink: #e8eef3; --muted: #9aaab8; --paper: #0e151b; --surface: #16202a; --line: #263543;
   --brand: #3fb5ab; --brand-ink: #06201e; --brand-soft: #123532;
-  --cold: #6ba2d1; --warm: #f0b429; --hot: #f26a52;
-  --error: #ff8a7a; --error-soft: #3a1b18; color-scheme: dark;
+  --cold: #6ba2d1; --warm: #f0b429; --hot: #f26a52; --good: #4cc27f;
+  --warn-soft: #3a3014; --error: #ff8a7a; --error-soft: #3a1b18; color-scheme: dark;
 }
 
-/* ---------- Base ---------- */
 * { box-sizing: border-box; }
-html { -webkit-text-size-adjust: 100%; }
-body {
-  margin: 0; background: var(--paper); color: var(--ink);
-  font-family: var(--font-body); font-size: 16px; line-height: 1.5;
-}
+body { margin: 0; background: var(--paper); color: var(--ink); font-family: var(--font-body); font-size: 16px; line-height: 1.5; }
 h1, h2, h3 { font-family: var(--font-display); margin: 0; line-height: 1.2; letter-spacing: -0.01em; }
-button, input, textarea { font: inherit; color: inherit; }
+button, input, textarea, select { font: inherit; color: inherit; }
 :focus-visible { outline: 3px solid var(--brand); outline-offset: 2px; }
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+a { color: var(--brand); }
+.muted { color: var(--muted); }
+.small { font-size: 14px; }
 
-/* ---------- Header ---------- */
-.topbar {
-  display: flex; align-items: center; justify-content: space-between; gap: 16px;
-  padding: 14px clamp(16px, 4vw, 40px); background: var(--surface); border-bottom: 1px solid var(--line);
-}
+/* ---------- Top bar and tabs ---------- */
+.topbar { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; padding: 12px clamp(16px, 4vw, 40px);
+  background: var(--surface); border-bottom: 1px solid var(--line); position: sticky; top: 0; z-index: 5; }
 .brand { display: flex; align-items: center; gap: 12px; }
-.brand-mark {
-  width: 34px; height: 34px; border-radius: 9px; background: var(--brand); color: var(--brand-ink);
-  display: grid; place-items: center; font-family: var(--font-display); font-weight: 700; font-size: 18px;
-}
+.brand-mark { width: 34px; height: 34px; border-radius: 9px; background: var(--brand); color: var(--brand-ink);
+  display: grid; place-items: center; font-family: var(--font-display); font-weight: 700; font-size: 18px; }
 .brand h1 { font-size: 19px; }
 .brand p { margin: 0; font-size: 13px; color: var(--muted); }
-.top-actions { display: flex; align-items: center; gap: 14px; }
-.status { display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--muted); }
-.dot { width: 9px; height: 9px; border-radius: 50%; background: var(--muted); }
-.dot.ok { background: #1f9d55; }
-.dot.bad { background: var(--error); }
-.icon-btn {
-  border: 1px solid var(--line); background: transparent; border-radius: var(--radius-sm);
-  padding: 6px 10px; cursor: pointer; font-size: 14px;
-}
+.tabs { display: flex; gap: 4px; flex: 1; flex-wrap: wrap; }
+.tab { border: 0; background: transparent; padding: 9px 14px; border-radius: var(--radius-md); cursor: pointer; font-weight: 600; color: var(--muted);
+  display: inline-flex; gap: 8px; align-items: center; min-height: 40px; }
+.tab:hover { background: var(--paper); color: var(--ink); }
+.tab[aria-selected="true"] { background: var(--brand-soft); color: var(--brand); }
+.count { background: var(--hot); color: #fff; border-radius: 999px; font-size: 12px; padding: 1px 8px; font-weight: 600; }
+.count.quiet { background: var(--muted); }
+.pill { font-size: 13px; padding: 4px 10px; border-radius: 999px; background: var(--warn-soft); color: var(--warm); font-weight: 600; }
+.icon-btn { border: 1px solid var(--line); background: transparent; border-radius: var(--radius-sm); padding: 6px 10px; cursor: pointer; font-size: 14px; }
 .icon-btn:hover { background: var(--paper); }
 
-/* ---------- Layout ---------- */
-.workspace {
-  display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 24px;
-  max-width: 1200px; margin: 0 auto; padding: 24px clamp(16px, 4vw, 40px) 56px;
-}
-@media (max-width: 900px) { .workspace { grid-template-columns: minmax(0, 1fr); } }
-.panel {
-  background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-lg);
-  padding: 22px; display: flex; flex-direction: column; gap: 16px; min-width: 0;
-}
-.panel-head h2 { font-size: 21px; }
-.panel-head p { margin: 4px 0 0; color: var(--muted); font-size: 15px; }
+main { max-width: 1240px; margin: 0 auto; padding: 24px clamp(16px, 4vw, 40px) 64px; }
+.view-head { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 12px; margin-bottom: 16px; }
+.view-head h2 { font-size: 24px; }
+.view-head p { margin: 4px 0 0; color: var(--muted); }
 
-/* ---------- Buttons and fields ---------- */
-.btn {
-  border: 0; border-radius: var(--radius-md); padding: 11px 18px; cursor: pointer; font-weight: 600;
-  background: var(--brand); color: var(--brand-ink); display: inline-flex; align-items: center; justify-content: center; gap: 10px;
-  min-height: 44px;
-}
+/* ---------- Controls ---------- */
+.btn { border: 0; border-radius: var(--radius-md); padding: 10px 16px; cursor: pointer; font-weight: 600; background: var(--brand); color: var(--brand-ink);
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 42px; }
 .btn:hover { filter: brightness(1.07); }
-.btn:disabled { opacity: .6; cursor: not-allowed; filter: none; }
+.btn:disabled { opacity: .55; cursor: not-allowed; filter: none; }
 .btn.ghost { background: transparent; color: var(--ink); border: 1px solid var(--line); font-weight: 500; }
 .btn.ghost:hover { background: var(--paper); }
-.btn.small { min-height: 34px; padding: 6px 12px; font-size: 14px; }
-.spinner {
-  width: 16px; height: 16px; border-radius: 50%; border: 2px solid currentColor; border-right-color: transparent;
-  animation: spin .7s linear infinite; display: none;
-}
-.btn.loading .spinner { display: inline-block; }
-@keyframes spin { to { transform: rotate(360deg); } }
+.btn.danger { background: transparent; color: var(--error); border: 1px solid var(--error); }
+.btn.small { min-height: 34px; padding: 5px 12px; font-size: 14px; }
+.toolbar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+input[type="text"], input[type="search"], select, textarea {
+  border: 1px solid var(--line); background: var(--surface); border-radius: var(--radius-md); padding: 9px 12px; }
+textarea { width: 100%; resize: vertical; min-height: 110px; }
+.field-label { font-size: 14px; font-weight: 600; display: block; margin-bottom: 4px; }
 
-.field { display: flex; flex-direction: column; gap: 6px; }
-.field label { font-size: 14px; font-weight: 600; }
-.field input, .field textarea {
-  border: 1px solid var(--line); background: var(--paper); border-radius: var(--radius-md);
-  padding: 11px 12px; width: 100%;
-}
-.field textarea { resize: vertical; min-height: 96px; }
-.field input:hover, .field textarea:hover { border-color: var(--muted); }
-.row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-@media (max-width: 520px) { .row { grid-template-columns: 1fr; } }
+/* ---------- Table ---------- */
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-lg); }
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; }
+th { text-align: left; font-size: 13px; color: var(--muted); font-weight: 600; padding: 12px 16px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+td { padding: 12px 16px; border-bottom: 1px solid var(--line); vertical-align: middle; }
+tr:last-child td { border-bottom: 0; }
+tbody tr { cursor: pointer; }
+tbody tr:hover { background: var(--paper); }
+.co-name { font-weight: 600; }
+.score { display: flex; align-items: center; gap: 10px; min-width: 120px; }
+.score b { font-family: var(--font-display); font-size: 18px; width: 30px; }
+.bar { flex: 1; height: 8px; background: var(--line); border-radius: 4px; overflow: hidden; }
+.bar span { display: block; height: 100%; border-radius: 4px; }
+.badge { display: inline-block; font-size: 13px; font-weight: 600; padding: 2px 10px; border-radius: 999px; background: var(--line); color: var(--ink); white-space: nowrap; }
+.badge.brand { background: var(--brand-soft); color: var(--brand); }
+.badge.warm { background: var(--warn-soft); color: var(--warm); }
+.badge.good { background: color-mix(in srgb, var(--good) 18%, transparent); color: var(--good); }
+.badge.bad { background: var(--error-soft); color: var(--error); }
+.badge.need { background: var(--hot); color: #fff; }
+.empty { padding: 36px 20px; text-align: center; color: var(--muted); }
 
-.chips { display: flex; flex-wrap: wrap; gap: 8px; }
-.chip {
-  border: 1px solid var(--line); background: var(--paper); border-radius: 999px; padding: 6px 12px;
-  font-size: 14px; cursor: pointer;
-}
+/* ---------- Drawer ---------- */
+.scrim { position: fixed; inset: 0; background: rgba(0,0,0,.35); z-index: 9; }
+.drawer { position: fixed; top: 0; right: 0; bottom: 0; width: min(560px, 100%); background: var(--surface); z-index: 10; overflow-y: auto;
+  box-shadow: -8px 0 30px rgba(0,0,0,.18); padding: 22px; display: flex; flex-direction: column; gap: 18px; }
+.drawer-head { display: flex; justify-content: space-between; gap: 12px; align-items: start; }
+.drawer h2 { font-size: 22px; }
+.section h3 { font-size: 15px; margin-bottom: 8px; }
+.break { display: grid; gap: 8px; }
+.break-row { display: grid; grid-template-columns: 170px 1fr 56px; gap: 10px; align-items: center; font-size: 14px; }
+.reason { border: 1px solid var(--line); border-radius: var(--radius-md); padding: 10px 12px; margin-bottom: 8px; }
+.reason b { display: block; }
+.reason blockquote { margin: 6px 0; padding-left: 10px; border-left: 3px solid var(--brand); color: var(--muted); font-size: 14px; overflow-wrap: anywhere; }
+.row-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+
+/* ---------- Email review cards ---------- */
+.stack { display: grid; gap: 16px; }
+.mail { padding: 18px; display: grid; gap: 12px; }
+.mail-head { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; align-items: baseline; }
+.flags { display: flex; flex-wrap: wrap; gap: 6px; }
+.flag { font-size: 13px; padding: 3px 10px; border-radius: 999px; background: var(--warn-soft); color: var(--warm); font-weight: 600; }
+.flag.block { background: var(--error-soft); color: var(--error); }
+details.facts summary { cursor: pointer; font-weight: 600; font-size: 14px; }
+details.facts blockquote { margin: 8px 0 0; padding: 6px 12px; border-left: 3px solid var(--brand); font-size: 14px; color: var(--muted); }
+
+/* ---------- Conversations ---------- */
+.convo { display: grid; grid-template-columns: 300px minmax(0, 1fr); gap: 16px; align-items: start; }
+@media (max-width: 860px) { .convo { grid-template-columns: minmax(0, 1fr); } }
+.list { max-height: 70vh; overflow-y: auto; }
+.list button { width: 100%; text-align: left; border: 0; border-bottom: 1px solid var(--line); background: transparent; padding: 12px 14px; cursor: pointer; display: grid; gap: 4px; }
+.list button:hover, .list button[aria-current="true"] { background: var(--paper); }
+.list .line1 { display: flex; justify-content: space-between; gap: 8px; align-items: center; font-weight: 600; }
+.thread-card { padding: 16px; display: grid; gap: 14px; }
+.thread-head { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px; align-items: center; }
+.messages { display: grid; gap: 10px; max-height: 52vh; overflow-y: auto; padding: 4px 2px; }
+.bubble { max-width: 86%; padding: 10px 14px; border-radius: var(--radius-md); white-space: pre-wrap; overflow-wrap: anywhere; }
+.bubble.out { justify-self: end; background: var(--brand); color: var(--brand-ink); border-bottom-right-radius: 3px; }
+.bubble.in { justify-self: start; background: var(--paper); border: 1px solid var(--line); border-bottom-left-radius: 3px; }
+.who { font-size: 12px; opacity: .8; margin-bottom: 2px; }
+.sys { justify-self: center; font-size: 13px; color: var(--muted); background: var(--paper); border-radius: 999px; padding: 4px 12px; text-align: center; }
+.sys.bad { background: var(--error-soft); color: var(--error); }
+.sys.good { background: color-mix(in srgb, var(--good) 15%, transparent); color: var(--good); }
+.draft { justify-self: stretch; border: 2px dashed var(--warm); border-radius: var(--radius-md); padding: 12px; display: grid; gap: 8px; background: var(--warn-soft); }
+.demo-box { border-top: 1px solid var(--line); padding-top: 12px; display: grid; gap: 8px; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { border: 1px solid var(--line); background: var(--paper); border-radius: 999px; padding: 4px 12px; font-size: 14px; cursor: pointer; }
 .chip:hover { border-color: var(--brand); color: var(--brand); }
 
-/* ---------- Assistant thread ---------- */
-.thread {
-  display: flex; flex-direction: column; gap: 14px; min-height: 220px; max-height: 460px; overflow-y: auto;
-  padding: 4px 2px;
-}
-.empty { color: var(--muted); font-size: 15px; border: 1px dashed var(--line); border-radius: var(--radius-md); padding: 18px; }
-.msg { max-width: 92%; padding: 11px 14px; border-radius: var(--radius-md); white-space: pre-wrap; overflow-wrap: anywhere; }
-.msg.user { align-self: flex-end; background: var(--brand); color: var(--brand-ink); border-bottom-right-radius: 3px; }
-.msg.bot { align-self: flex-start; background: var(--paper); border: 1px solid var(--line); border-bottom-left-radius: 3px; }
-.msg.bot.error { background: var(--error-soft); border-color: var(--error); color: var(--error); }
-.typing { display: inline-flex; gap: 5px; padding: 4px 0; }
-.typing span { width: 7px; height: 7px; border-radius: 50%; background: var(--muted); animation: blink 1.2s infinite ease-in-out; }
-.typing span:nth-child(2) { animation-delay: .15s; }
-.typing span:nth-child(3) { animation-delay: .3s; }
-@keyframes blink { 0%, 80%, 100% { opacity: .25; } 40% { opacity: 1; } }
-details.sources { margin-top: 10px; font-size: 14px; color: var(--muted); }
-details.sources summary { cursor: pointer; font-weight: 600; color: var(--ink); }
-details.sources blockquote {
-  margin: 8px 0 0; padding: 8px 12px; border-left: 3px solid var(--brand); background: var(--surface);
-  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
-}
-.ask-form { display: flex; gap: 10px; align-items: flex-end; }
-.ask-form .field { flex: 1; }
-.ask-form textarea { min-height: 48px; }
-
-/* ---------- Lead result: the temperature gauge ---------- */
-.result { border: 1px solid var(--line); border-radius: var(--radius-md); padding: 18px; display: flex; flex-direction: column; gap: 14px; }
-.result.error { background: var(--error-soft); border-color: var(--error); color: var(--error); }
-.result-top { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; }
-.score-num { font-family: var(--font-display); font-weight: 700; font-size: 56px; line-height: 1; }
-.temp { font-weight: 600; font-size: 18px; }
-.temp.hot { color: var(--hot); } .temp.warm { color: var(--warm); } .temp.cold { color: var(--cold); }
-.gauge { position: relative; padding-top: 6px; }
-.gauge-track { display: grid; grid-template-columns: 40fr 30fr 30fr; gap: 4px; height: 12px; }
-.gauge-track span:nth-child(1) { background: var(--cold); border-radius: 6px 0 0 6px; }
-.gauge-track span:nth-child(2) { background: var(--warm); }
-.gauge-track span:nth-child(3) { background: var(--hot); border-radius: 0 6px 6px 0; }
-.gauge-marker {
-  position: absolute; top: 0; width: 4px; height: 24px; background: var(--ink); border-radius: 2px;
-  left: 0; transform: translateX(-50%); transition: left .7s cubic-bezier(.2, .8, .2, 1);
-}
-.gauge-scale { display: flex; justify-content: space-between; font-size: 13px; color: var(--muted); margin-top: 6px; }
-.kv { display: grid; gap: 4px; }
-.kv h3 { font-size: 15px; }
-.kv p { margin: 0; overflow-wrap: anywhere; }
-.next-action { background: var(--brand-soft); border-radius: var(--radius-md); padding: 12px 14px; display: flex; gap: 12px; justify-content: space-between; align-items: flex-start; }
-.history { display: flex; flex-direction: column; gap: 8px; }
-.history h3 { font-size: 15px; }
-.history ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
-.history button {
-  width: 100%; text-align: left; display: flex; justify-content: space-between; gap: 12px; align-items: center;
-  border: 1px solid var(--line); background: transparent; border-radius: var(--radius-md); padding: 9px 12px; cursor: pointer;
-}
-.history button:hover { background: var(--paper); }
-.badge { font-weight: 600; font-size: 13px; padding: 2px 10px; border-radius: 999px; color: #fff; }
-.badge.hot { background: var(--hot); } .badge.warm { background: #9a6b00; } .badge.cold { background: var(--cold); }
-
-@media (prefers-reduced-motion: reduce) {
-  * { animation-duration: .01ms !important; transition-duration: .01ms !important; }
-}
+/* ---------- Toast ---------- */
+.toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); background: var(--ink); color: var(--paper); padding: 10px 18px;
+  border-radius: var(--radius-md); z-index: 20; max-width: min(560px, 92vw); box-shadow: 0 6px 24px rgba(0,0,0,.25); }
+.toast.error { background: var(--error); color: #fff; }
+@media (prefers-reduced-motion: reduce) { * { transition-duration: .01ms !important; animation-duration: .01ms !important; } }
 </style>
 </head>
 <body>
 <header class="topbar">
   <div class="brand">
-    <div class="brand-mark" aria-hidden="true">B</div>
-    <div>
-      <h1>BrightDesk Sales Desk</h1>
-      <p>Answer product questions and rank new leads</p>
-    </div>
+    <div class="brand-mark" aria-hidden="true">L</div>
+    <div><h1>Ledgerwise Sales Desk</h1><p>AI assistant for outreach</p></div>
   </div>
-  <div class="top-actions">
-    <div class="status" role="status"><span class="dot" id="dot"></span><span id="statusText">Checking connection</span></div>
-    <button class="icon-btn" id="themeBtn" type="button" aria-label="Switch between light and dark mode">Theme</button>
-  </div>
+  <nav class="tabs" role="tablist" aria-label="Sections" id="tabs"></nav>
+  <span class="pill" title="Approved emails go to an outbox. Nothing is sent to real companies.">Demo mode: nothing is sent for real</span>
+  <button class="icon-btn" id="themeBtn" type="button" aria-label="Switch between light and dark mode">Theme</button>
 </header>
-
-<main class="workspace">
-  <!-- Lead scoring -->
-  <section class="panel" aria-labelledby="leadTitle">
-    <div class="panel-head">
-      <h2 id="leadTitle">Score a lead</h2>
-      <p>Paste a new inquiry to see how ready this lead is to buy.</p>
-    </div>
-    <div class="chips" aria-label="Sample leads">
-      <button class="chip" type="button" data-sample="0">Sample: ShopDZ</button>
-      <button class="chip" type="button" data-sample="1">Sample: Solo Freelance</button>
-    </div>
-    <form id="leadForm" class="panel" style="border:0;padding:0" novalidate>
-      <div class="row">
-        <div class="field"><label for="leadName">Name</label><input id="leadName" autocomplete="off" required></div>
-        <div class="field"><label for="leadCompany">Company</label><input id="leadCompany" autocomplete="off" required></div>
-      </div>
-      <div class="field"><label for="leadMessage">Lead message</label><textarea id="leadMessage" required></textarea></div>
-      <button class="btn" id="scoreBtn" type="submit"><span class="spinner" aria-hidden="true"></span><span>Score lead</span></button>
-    </form>
-    <div id="leadResult" aria-live="polite"></div>
-    <div class="history" id="historyBox" hidden>
-      <h3>Scored this session</h3>
-      <ul id="historyList"></ul>
-    </div>
-  </section>
-
-  <!-- Product assistant -->
-  <section class="panel" aria-labelledby="askTitle">
-    <div class="panel-head">
-      <h2 id="askTitle">Product assistant</h2>
-      <p>Answers come only from the company information, with the source shown.</p>
-    </div>
-    <div class="chips" aria-label="Suggested questions">
-      <button class="chip" type="button" data-q="How much does the Pro plan cost?">Pro plan price</button>
-      <button class="chip" type="button" data-q="What does the Pro plan include?">What Pro includes</button>
-      <button class="chip" type="button" data-q="Who is the ideal customer?">Ideal customer</button>
-      <button class="chip" type="button" data-q="What are the steps of the sales process?">Sales process</button>
-    </div>
-    <div class="thread" id="thread" role="log" aria-live="polite">
-      <div class="empty" id="emptyThread">Ask about pricing, features, or the sales process. Try one of the suggestions above.</div>
-    </div>
-    <form class="ask-form" id="askForm">
-      <div class="field">
-        <label class="sr-only" for="question">Your question</label>
-        <textarea id="question" rows="1" placeholder="Type a question. Press Enter to send." required></textarea>
-      </div>
-      <button class="btn" id="askBtn" type="submit"><span class="spinner" aria-hidden="true"></span><span>Ask</span></button>
-    </form>
-  </section>
-</main>
+<main id="view" aria-live="polite"></main>
+<div id="overlay"></div>
+<div id="toast" class="toast" role="status" hidden></div>
 
 <script>
-const $ = (id) => document.getElementById(id);
-const SAMPLES = [
-  { name: "Sara Amrani", company: "ShopDZ", message: "We get about 800 support tickets a month and need a better tool. Can we have a demo this week?" },
-  { name: "John Smith", company: "Solo Freelance", message: "Just curious what this is, no budget right now." }
-];
-
-/* ---------- Helpers ---------- */
-async function post(url, body) {
-  const ctrl = new AbortController();
-  const timer = setTimeout(() => ctrl.abort(), 60000);
-  try {
-    const res = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body), signal: ctrl.signal });
-    let data = {};
-    try { data = await res.json(); } catch (e) { /* not JSON */ }
-    if (!res.ok) throw new Error(data.detail || ("Request failed (" + res.status + ")"));
-    return data;
-  } catch (err) {
-    if (err.name === "AbortError") throw new Error("The request took too long. Try again in a moment.");
-    throw err;
-  } finally { clearTimeout(timer); }
+/* ---------- tiny helpers ---------- */
+function h(tag, props, ...kids) {
+  const el = document.createElement(tag);
+  for (const [k, v] of Object.entries(props || {})) {
+    if (k === "class") el.className = v;
+    else if (k === "value") el.value = v;
+    else if (k.startsWith("on")) el.addEventListener(k.slice(2), v);
+    else if (v === true) el.setAttribute(k, "");
+    else if (v !== false && v != null) el.setAttribute(k, v);
+  }
+  for (const kid of kids.flat()) if (kid != null && kid !== false) el.append(kid.nodeType ? kid : document.createTextNode(String(kid)));
+  return el;
 }
-function setLoading(btn, on) { btn.disabled = on; btn.classList.toggle("loading", on); }
-function friendly(msg) {
-  if (/429/.test(msg)) return "The AI service is busy (rate limit). Wait a minute, then try again.";
-  if (/401|403|API key/i.test(msg)) return "The API key was rejected. Check GEMINI_API_KEY in your .env file, then restart the app.";
-  if (/404/.test(msg)) return "The AI model was not found. Check MODEL in your .env file, then restart the app.";
-  return msg;
+async function api(path, method = "GET", body) {
+  const res = await fetch(path, { method, headers: { "Content-Type": "application/json" }, body: body ? JSON.stringify(body) : undefined });
+  let data = null;
+  try { data = await res.json(); } catch (e) { /* no JSON */ }
+  if (!res.ok) {
+    const d = data && data.detail;
+    const msg = typeof d === "string" ? d : (d && d.message ? d.message + (d.flags ? ": " + d.flags.join("; ") : "") : "Request failed (" + res.status + ")");
+    throw new Error(msg);
+  }
+  return data;
 }
-function tempOf(score) { return score >= 70 ? "hot" : score >= 40 ? "warm" : "cold"; }
-const TEMP_LABEL = { hot: "Hot lead", warm: "Warm lead", cold: "Cold lead" };
+let toastTimer;
+function toast(msg, isError) {
+  const t = document.getElementById("toast");
+  t.textContent = msg; t.className = "toast" + (isError ? " error" : ""); t.hidden = false;
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => (t.hidden = true), isError ? 7000 : 4500);
+}
+const ET = (iso) => new Intl.DateTimeFormat("en-US", { weekday: "short", month: "short", day: "numeric", hour: "numeric", minute: "2-digit", timeZone: "America/New_York" }).format(new Date(iso)) + " ET";
+const when = (iso) => new Date(iso).toLocaleString([], { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" });
+const STATUS = {
+  new: ["New", ""], qualified: ["Qualified", "brand"], rejected: ["Rejected", ""], email_drafted: ["Email drafted", "warm"],
+  contacted: ["Contacted", "brand"], replied: ["Replied", "warm"], booked: ["Call booked", "good"], do_not_contact: ["Do not contact", "bad"],
+};
+const badge = (s) => h("span", { class: "badge " + (STATUS[s] ? STATUS[s][1] : "") }, STATUS[s] ? STATUS[s][0] : s);
+const tempColor = (n) => (n >= 70 ? "var(--hot)" : n >= 40 ? "var(--warm)" : "var(--cold)");
+const host = (u) => { try { return new URL(u).hostname.replace(/^www\./, ""); } catch (e) { return u; } };
+function sourceLink(url) { return h("a", { href: url, target: "_blank", rel: "noopener noreferrer" }, "Source: " + host(url)); }
 
-/* ---------- Theme and health ---------- */
-(function initTheme() {
-  try { const t = localStorage.getItem("theme"); if (t) document.documentElement.dataset.theme = t; } catch (e) {}
-})();
-$("themeBtn").addEventListener("click", () => {
+/* ---------- state ---------- */
+const S = { view: "companies", companies: [], messages: [], bookings: [], stats: {}, filter: "qualified", search: "", selected: null, drafting: null };
+const VIEWS = [["companies", "Companies"], ["emails", "Emails to review"], ["conversations", "Conversations"], ["calls", "Calls booked"]];
+
+async function load() {
+  const [companies, messages, bookings, stats] = await Promise.all([api("/companies"), api("/messages"), api("/bookings"), api("/stats")]);
+  Object.assign(S, { companies, messages, bookings, stats });
+}
+async function refresh(keepDrawer) {
+  try { await load(); } catch (e) { toast(e.message, true); }
+  render(); if (!keepDrawer) closeDrawer();
+}
+
+/* ---------- shell ---------- */
+function renderTabs() {
+  const nav = document.getElementById("tabs"); nav.innerHTML = "";
+  const counts = { emails: S.stats.emails_to_review, conversations: S.stats.needs_human, calls: S.stats.bookings };
+  for (const [id, label] of VIEWS) {
+    const n = counts[id];
+    nav.append(h("button", { class: "tab", role: "tab", "aria-selected": S.view === id ? "true" : "false", onclick: () => go(id) },
+      label, n ? h("span", { class: "count" + (id === "calls" ? " quiet" : "") }, n) : null));
+  }
+}
+function go(view) { location.hash = view; }
+function render() {
+  renderTabs();
+  const v = document.getElementById("view"); v.innerHTML = "";
+  ({ companies: renderCompanies, emails: renderEmails, conversations: renderConversations, calls: renderCalls }[S.view])(v);
+}
+window.addEventListener("hashchange", () => { const id = location.hash.slice(1); if (VIEWS.some((x) => x[0] === id)) { S.view = id; closeDrawer(); render(); } });
+
+/* ---------- companies ---------- */
+function filtered() {
+  const groups = { all: null, qualified: ["qualified", "email_drafted"], outreach: ["email_drafted", "contacted", "replied", "booked"], rejected: ["rejected"], dnc: ["do_not_contact"] };
+  const g = groups[S.filter]; const q = S.search.trim().toLowerCase();
+  return S.companies.filter((c) => (!g || g.includes(c.status)) && (!q || (c.name + " " + (c.domain || "")).toLowerCase().includes(q)));
+}
+function renderCompanies(root) {
+  const list = filtered();
+  const sel = h("select", { "aria-label": "Filter companies", onchange: (e) => { S.filter = e.target.value; render(); } },
+    [["qualified", "Qualified"], ["outreach", "In outreach"], ["all", "All companies"], ["rejected", "Rejected"], ["dnc", "Do not contact"]]
+      .map(([v, l]) => h("option", { value: v, selected: S.filter === v }, l)));
+  const search = h("input", { type: "search", placeholder: "Search companies", value: S.search, "aria-label": "Search companies",
+    oninput: (e) => { S.search = e.target.value; const pos = e.target.selectionStart; render(); const i = document.querySelector('input[type="search"]'); i.focus(); i.setSelectionRange(pos, pos); } });
+  root.append(h("div", { class: "view-head" },
+    h("div", {}, h("h2", {}, "Companies"), h("p", {}, "Every score comes with reasons, quotes and source links. Click a company to see them.")),
+    h("div", { class: "toolbar" }, search, sel)));
+  if (!list.length) { root.append(h("div", { class: "card empty" }, "No companies match this filter.")); return; }
+  const rows = list.map((c) => h("tr", { tabindex: 0, onclick: () => openCompany(c.id), onkeydown: (e) => { if (e.key === "Enter") openCompany(c.id); } },
+    h("td", {}, h("div", { class: "co-name" }, c.name), h("div", { class: "muted small" }, c.domain || "no website yet")),
+    h("td", {}, c.score == null ? h("span", { class: "muted" }, "Not scored") :
+      h("div", { class: "score" }, h("b", {}, c.score), h("div", { class: "bar" }, h("span", { style: `width:${c.score}%;background:${tempColor(c.score)}` })))),
+    h("td", {}, badge(c.status), c.needs_human ? h("span", { class: "badge need", style: "margin-left:6px" }, "Needs you") : null),
+    h("td", {}, c.contact_name ? [c.contact_name, h("div", { class: "muted small" }, c.contact_role || "")] : h("span", { class: "muted" }, "Unknown")),
+    h("td", {}, (c.sales_channels || []).join(", ") || h("span", { class: "muted" }, "Unknown"))));
+  root.append(h("div", { class: "card table-wrap" }, h("table", {},
+    h("thead", {}, h("tr", {}, ["Company", "Score", "Status", "Contact", "Sells through"].map((t) => h("th", {}, t)))), h("tbody", {}, rows))));
+}
+
+function closeDrawer() { document.getElementById("overlay").innerHTML = ""; S.drawerOpen = false; }
+const BREAK_LABELS = { sells_online: ["Sells online", 40], us_based: ["Based in the US", 10], trigger: ["Reason to reach out now", 30], size_fit: ["Size fits", 15], contact_found: ["Contact found", 5] };
+async function openCompany(id) {
+  let d;
+  try { d = await api("/companies/" + id); } catch (e) { return toast(e.message, true); }
+  const c = d.company; const ov = document.getElementById("overlay"); ov.innerHTML = ""; S.drawerOpen = true;
+  const group = (kind, title) => {
+    const items = d.evidence.filter((e) => e.kind === kind && e.quote);
+    return items.length ? h("div", { class: "section" }, h("h3", {}, title), items.map((e) =>
+      h("div", { class: "reason" }, h("b", {}, e.claim), h("blockquote", {}, "\u201C" + e.quote + "\u201D"), sourceLink(e.source_url)))) : null;
+  };
+  const bd = c.score_breakdown || {};
+  const breakdown = bd.reason ? h("p", { class: "muted" }, "Rejected: " + bd.reason) :
+    h("div", { class: "break" }, Object.entries(BREAK_LABELS).filter(([k]) => k in bd).map(([k, [label, max]]) =>
+      h("div", { class: "break-row" }, label, h("div", { class: "bar" }, h("span", { style: `width:${(bd[k] / max) * 100}%;background:var(--brand)` })), h("span", { class: "muted" }, bd[k] + " / " + max))));
+  const hasMail = d.messages.some((m) => (m.meta || {}).kind === "first_email" && m.status !== "rejected");
+  const actions = h("div", { class: "row-actions" },
+    (c.status === "qualified" && !hasMail) ? h("button", { class: "btn", onclick: async (e) => { e.target.disabled = true; e.target.textContent = "Writing..."; try { await api(`/companies/${id}/draft`, "POST"); toast("Email drafted. Review it in Emails to review."); await refresh(); } catch (er) { toast(er.message, true); e.target.disabled = false; e.target.textContent = "Write first email"; } } }, "Write first email") : null,
+    d.messages.length ? h("button", { class: "btn ghost", onclick: () => { S.selected = id; closeDrawer(); go("conversations"); } }, "Open conversation") : null,
+    ["qualified", "email_drafted"].includes(c.status) ? h("button", { class: "btn danger", onclick: async () => { await api(`/companies/${id}/status`, "POST", { status: "rejected" }); toast("Company rejected."); refresh(); } }, "Not a fit, reject") : null,
+    c.status === "rejected" ? h("button", { class: "btn ghost", onclick: async () => { await api(`/companies/${id}/status`, "POST", { status: "qualified" }); toast("Company marked as qualified."); refresh(); } }, "Mark as qualified") : null);
+  ov.append(h("div", { class: "scrim", onclick: closeDrawer }),
+    h("aside", { class: "drawer", role: "dialog", "aria-modal": "true", "aria-label": c.name },
+      h("div", { class: "drawer-head" }, h("div", {}, h("h2", {}, c.name),
+        c.website ? h("a", { href: c.website, target: "_blank", rel: "noopener noreferrer" }, host(c.website)) : h("span", { class: "muted" }, "No website found")),
+        h("button", { class: "icon-btn", onclick: closeDrawer, "aria-label": "Close" }, "Close")),
+      h("div", {}, badge(c.status), c.score != null ? h("span", { style: "margin-left:10px;font-weight:600" }, "Score " + c.score + " of 100") : null),
+      c.description ? h("p", { style: "margin:0" }, c.description) : null,
+      h("div", { class: "section" }, h("h3", {}, "How the score was built"), breakdown),
+      group("trigger", "Why reach out now"), group("fit", "Why they fit"), group("fact", "Contact"), actions));
+}
+
+/* ---------- emails to review ---------- */
+function drafts() {
+  const inactive = new Set(S.companies.filter((c) => ["rejected", "do_not_contact"].includes(c.status)).map((c) => c.id));
+  return S.messages.filter((m) => m.direction === "out" && m.status === "draft" && (m.meta || {}).kind === "first_email" && !inactive.has(m.company_id));
+}
+async function draftMissing(btn) {
+  const have = new Set(S.messages.filter((m) => (m.meta || {}).kind === "first_email" && m.status !== "rejected").map((m) => m.company_id));
+  const todo = S.companies.filter((c) => c.status === "qualified" && !have.has(c.id));
+  if (!todo.length) return toast("Every qualified company already has an email.");
+  btn.disabled = true; let done = 0;
+  for (const c of todo) {
+    btn.textContent = `Writing ${done + 1} of ${todo.length}...`;
+    try { await api(`/companies/${c.id}/draft`, "POST"); } catch (e) { /* keep going */ }
+    done++;
+  }
+  toast(`Wrote ${done} emails. Review them below.`); refresh();
+}
+function renderEmails(root) {
+  const list = drafts();
+  const missing = S.companies.filter((c) => c.status === "qualified").length;
+  const btn = h("button", { class: "btn", onclick: (e) => draftMissing(e.target) }, "Write emails for all qualified companies");
+  root.append(h("div", { class: "view-head" }, h("div", {}, h("h2", {}, "Emails to review"),
+    h("p", {}, "Nothing goes out until you approve it. The facts each email uses are listed under it, with their sources.")), missing ? btn : null));
+  if (!list.length) { root.append(h("div", { class: "card empty" }, "No emails waiting for review.")); return; }
+  const cards = list.map((m) => {
+    const subject = h("input", { type: "text", value: m.subject || "", style: "width:100%", "aria-label": "Subject" });
+    const body = h("textarea", { value: m.body, "aria-label": "Email body", rows: 9 });
+    const flagBox = h("div", { class: "flags" });
+    const setFlags = (fl) => { flagBox.innerHTML = ""; (fl || []).forEach((f) => flagBox.append(h("span", { class: "flag" + (f.startsWith("BLOCK") ? " block" : "") }, f.replace(/^BLOCK: /, "Blocked: ").replace(/^warning: /, "Check: ")))); };
+    setFlags(m.flags);
+    const save = async () => { const r = await api("/messages/" + m.id, "PATCH", { subject: subject.value, body: body.value }); setFlags(r.flags); return r; };
+    return h("div", { class: "card mail" },
+      h("div", { class: "mail-head" }, h("h3", {}, m.company_name), h("span", { class: "muted small" }, "Score " + (m.company_score ?? "?"))),
+      h("div", {}, h("label", { class: "field-label" }, "Subject"), subject),
+      h("div", {}, h("label", { class: "field-label" }, "Email"), body),
+      flagBox,
+      (m.sources || []).length ? h("details", { class: "facts" }, h("summary", {}, "Facts used (" + m.sources.length + ")"),
+        m.sources.map((s) => h("blockquote", {}, h("b", {}, s.claim), h("div", {}, "\u201C" + s.quote + "\u201D"), sourceLink(s.source_url)))) : null,
+      h("div", { class: "row-actions" },
+        h("button", { class: "btn", onclick: async () => { try { await save(); await api(`/messages/${m.id}/approve`, "POST"); toast("Approved. The email is in the outbox."); refresh(); } catch (e) { toast(e.message, true); } } }, "Approve and send"),
+        h("button", { class: "btn ghost", onclick: async () => { try { const r = await save(); toast(r.flags.length ? "Saved. Check the notes under the email." : "Saved. The email passes all rules."); } catch (e) { toast(e.message, true); } } }, "Save edits"),
+        h("button", { class: "btn danger", onclick: async () => { await api(`/messages/${m.id}/reject`, "POST"); toast("Email rejected."); refresh(); } }, "Reject")));
+  });
+  root.append(h("div", { class: "stack" }, cards));
+}
+
+/* ---------- conversations ---------- */
+const EVENT_TEXT = { stop: ["bad"], handoff: ["bad"], takeover: [""], release: [""], booked: ["good"], reply_while_human: [""] };
+function convoCompanies() {
+  const has = new Set(S.messages.map((m) => m.company_id));
+  return S.companies.filter((c) => has.has(c.id) || ["contacted", "replied", "booked", "do_not_contact"].includes(c.status))
+    .sort((a, b) => (b.needs_human ? 1 : 0) - (a.needs_human ? 1 : 0));
+}
+async function renderConversations(root) {
+  const list = convoCompanies();
+  root.append(h("div", { class: "view-head" }, h("div", {}, h("h2", {}, "Conversations"),
+    h("p", {}, "Read every thread and take over any time. Threads that need you are at the top."))));
+  if (!list.length) { root.append(h("div", { class: "card empty" }, "No conversations yet. Approve an email first, then simulate a reply.")); return; }
+  if (!S.selected || !list.some((c) => c.id === S.selected)) S.selected = list[0].id;
+  const left = h("div", { class: "card list" }, list.map((c) => h("button", { "aria-current": c.id === S.selected ? "true" : "false", onclick: () => { S.selected = c.id; render(); } },
+    h("div", { class: "line1" }, c.name, c.needs_human ? h("span", { class: "badge need" }, "Needs you") : null), badge(c.status))));
+  const right = h("div", { class: "card thread-card" }, h("p", { class: "muted" }, "Loading..."));
+  root.append(h("div", { class: "convo" }, left, right));
+  try { fillThread(right, await api("/companies/" + S.selected)); } catch (e) { right.textContent = e.message; }
+}
+function fillThread(box, d) {
+  const c = d.company; const human = (c.handled_by || "agent") === "human"; box.innerHTML = "";
+  const items = [...d.messages.map((m) => ({ t: m.created_at, m })), ...d.events.filter((e) => EVENT_TEXT[e.kind]).map((e) => ({ t: e.created_at, e }))].sort((a, b) => (a.t < b.t ? -1 : 1));
+  const thread = h("div", { class: "messages" }, items.map(({ m, e }) => {
+    if (e) return h("div", { class: "sys " + EVENT_TEXT[e.kind][0] }, e.detail);
+    if (m.status === "draft") {
+      const ta = h("textarea", { value: m.body, "aria-label": "Draft reply", rows: 5 });
+      return h("div", { class: "draft" }, h("b", {}, "Draft reply from the agent, waiting for you"),
+        m.meta && m.meta.reason ? h("span", { class: "small" }, "Why it was not sent: " + m.meta.reason) : null, ta,
+        h("div", { class: "row-actions" },
+          h("button", { class: "btn small", onclick: async () => { try { await api("/messages/" + m.id, "PATCH", { body: ta.value }); await api(`/messages/${m.id}/approve`, "POST"); toast("Sent."); refresh(true); } catch (er) { toast(er.message, true); } } }, "Send"),
+          h("button", { class: "btn ghost small", onclick: async () => { await api(`/messages/${m.id}/reject`, "POST"); refresh(true); } }, "Discard")));
+    }
+    if (m.status === "rejected") return null;
+    const who = m.direction === "in" ? "Prospect (simulated)" : (m.author === "human" ? "A person" : "Agent");
+    return h("div", { class: "bubble " + m.direction }, h("div", { class: "who" }, who + " \u00B7 " + when(m.created_at)), m.subject ? h("b", {}, m.subject + "\n") : null, m.body);
+  }));
+  const reply = h("textarea", { placeholder: "Type what the prospect would reply", "aria-label": "Simulated prospect reply", rows: 3 });
+  const send = h("button", { class: "btn", onclick: async (ev) => {
+    if (!reply.value.trim()) return;
+    ev.target.disabled = true;
+    try { const r = await api(`/companies/${c.id}/simulate-reply`, "POST", { text: reply.value }); toast("Agent: " + r.detail); await refresh(true); }
+    catch (er) { toast(er.message, true); ev.target.disabled = false; }
+  } }, "Send reply");
+  const examples = ["Sounds interesting, can we talk this week?", "How much does it cost?", "Am I talking to a bot?", "We already have an in-house bookkeeper.", "Please stop emailing me."];
+  const mine = h("textarea", { placeholder: "Write to the prospect yourself", "aria-label": "Message from a person", rows: 3 });
+  box.append(
+    h("div", { class: "thread-head" }, h("div", {}, h("h3", {}, c.name), h("span", { class: "muted small" }, human ? "A person is handling this thread" : "The agent is handling this thread")),
+      h("div", { class: "row-actions" }, badge(c.status),
+        c.needs_human ? h("button", { class: "btn ghost small", onclick: async () => { await api(`/companies/${c.id}/resolve`, "POST"); refresh(true); } }, "Mark as handled") : null,
+        c.status === "do_not_contact" ? null : h("button", { class: "btn ghost small", onclick: async () => { await api(`/companies/${c.id}/${human ? "release" : "takeover"}`, "POST"); refresh(true); } }, human ? "Hand back to agent" : "Take over"))),
+    thread,
+    human && c.status !== "do_not_contact" ? h("div", { class: "demo-box" }, h("label", { class: "field-label" }, "Your message"), mine,
+      h("div", { class: "row-actions" }, h("button", { class: "btn", onclick: async () => { try { await api(`/companies/${c.id}/send`, "POST", { body: mine.value }); toast("Sent."); refresh(true); } catch (er) { toast(er.message, true); } } }, "Send as a person"))) : null,
+    h("div", { class: "demo-box" }, h("label", { class: "field-label" }, "Demo: simulate a reply from the prospect"),
+      h("div", { class: "chips" }, examples.map((t) => h("button", { class: "chip", type: "button", onclick: () => { reply.value = t; reply.focus(); } }, t))), reply,
+      h("div", { class: "row-actions" }, send, h("span", { class: "muted small" }, "The agent handles it exactly like a real reply."))));
+  thread.scrollTop = thread.scrollHeight;
+}
+
+/* ---------- calls ---------- */
+function renderCalls(root) {
+  root.append(h("div", { class: "view-head" }, h("div", {}, h("h2", {}, "Calls booked"), h("p", {}, "Booked by the agent in the sales team’s calendar. Times are shown in US Eastern Time."))));
+  if (!S.bookings.length) { root.append(h("div", { class: "card empty" }, "No calls booked yet. When a prospect picks a time, it appears here.")); return; }
+  root.append(h("div", { class: "card table-wrap" }, h("table", {}, h("thead", {}, h("tr", {}, ["Company", "When", "Status", ""].map((t) => h("th", {}, t)))),
+    h("tbody", {}, S.bookings.map((b) => h("tr", { style: "cursor:default" }, h("td", { class: "co-name" }, b.company_name), h("td", {}, ET(b.start_time)),
+      h("td", {}, h("span", { class: "badge good" }, "Booked")),
+      h("td", {}, h("button", { class: "btn ghost small", onclick: () => { S.selected = b.company_id; go("conversations"); } }, "Open conversation"))))))));
+}
+
+/* ---------- start ---------- */
+document.getElementById("themeBtn").addEventListener("click", () => {
   const cur = document.documentElement.dataset.theme || (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
-  const next = cur === "dark" ? "light" : "dark";
-  document.documentElement.dataset.theme = next;
+  const next = cur === "dark" ? "light" : "dark"; document.documentElement.dataset.theme = next;
   try { localStorage.setItem("theme", next); } catch (e) {}
 });
-fetch("/health").then((r) => r.json()).then(() => {
-  $("dot").className = "dot ok"; $("statusText").textContent = "Connected";
-}).catch(() => {
-  $("dot").className = "dot bad"; $("statusText").textContent = "Server not reachable";
-});
-
-/* ---------- Product assistant ---------- */
-const thread = $("thread");
-function addMsg(text, cls) {
-  const el = document.createElement("div");
-  el.className = "msg " + cls; el.textContent = text;
-  const empty = $("emptyThread"); if (empty) empty.remove();
-  thread.appendChild(el); thread.scrollTop = thread.scrollHeight; return el;
-}
-async function ask(question) {
-  addMsg(question, "user");
-  const bot = addMsg("", "bot");
-  bot.innerHTML = '<span class="typing" aria-label="Thinking"><span></span><span></span><span></span></span>';
-  setLoading($("askBtn"), true);
-  try {
-    const data = await post("/ask", { question });
-    bot.textContent = data.answer || "No answer returned.";
-    if (data.sources && data.sources.length) {
-      const d = document.createElement("details"); d.className = "sources";
-      const s = document.createElement("summary");
-      s.textContent = "Based on " + data.sources.length + (data.sources.length === 1 ? " passage" : " passages");
-      d.appendChild(s);
-      data.sources.forEach((src) => { const q = document.createElement("blockquote"); q.textContent = src; d.appendChild(q); });
-      bot.appendChild(d);
-    } else {
-      const n = document.createElement("div"); n.style.cssText = "margin-top:8px;font-size:14px;color:var(--muted)";
-      n.textContent = "No matching passage in the company information.";
-      bot.appendChild(n);
-    }
-  } catch (err) {
-    bot.className = "msg bot error"; bot.textContent = friendly(err.message);
-  } finally { setLoading($("askBtn"), false); thread.scrollTop = thread.scrollHeight; }
-}
-$("askForm").addEventListener("submit", (e) => {
-  e.preventDefault();
-  const q = $("question").value.trim(); if (!q) return;
-  $("question").value = ""; ask(q);
-});
-$("question").addEventListener("keydown", (e) => {
-  if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); $("askForm").requestSubmit(); }
-});
-document.querySelectorAll("[data-q]").forEach((b) => b.addEventListener("click", () => ask(b.dataset.q)));
-
-/* ---------- Lead scoring ---------- */
-const history = [];
-function renderResult(r, lead) {
-  const box = $("leadResult"); box.innerHTML = "";
-  const wrap = document.createElement("div");
-  if (r.error || typeof r.score !== "number") {
-    wrap.className = "result error";
-    wrap.textContent = "The AI answer could not be read. Try scoring again.";
-    box.appendChild(wrap); return;
-  }
-  const score = Math.max(0, Math.min(100, Math.round(r.score)));
-  const t = tempOf(score);
-  wrap.className = "result";
-  wrap.innerHTML =
-    '<div class="result-top"><span class="score-num"></span><span class="temp ' + t + '"></span></div>' +
-    '<div class="gauge"><div class="gauge-track"><span></span><span></span><span></span></div><div class="gauge-marker"></div>' +
-    '<div class="gauge-scale"><span>Cold</span><span>Warm</span><span>Hot</span></div></div>' +
-    '<div class="kv"><h3>Why this score</h3><p class="why"></p></div>' +
-    '<div class="next-action"><div class="kv"><h3>Next action</h3><p class="act"></p></div>' +
-    '<button type="button" class="btn ghost small copy">Copy</button></div>';
-  wrap.querySelector(".score-num").textContent = score;
-  wrap.querySelector(".temp").textContent = TEMP_LABEL[t] + " for " + lead.company;
-  wrap.querySelector(".why").textContent = r.reason || "";
-  wrap.querySelector(".act").textContent = r.next_action || "";
-  wrap.querySelector(".copy").addEventListener("click", async (e) => {
-    try { await navigator.clipboard.writeText(r.next_action || ""); e.target.textContent = "Copied"; }
-    catch (err) { e.target.textContent = "Copy failed"; }
-    setTimeout(() => (e.target.textContent = "Copy"), 1500);
-  });
-  box.appendChild(wrap);
-  requestAnimationFrame(() => requestAnimationFrame(() => { wrap.querySelector(".gauge-marker").style.left = score + "%"; }));
-}
-function renderHistory() {
-  const list = $("historyList"); list.innerHTML = "";
-  history.forEach((h) => {
-    const li = document.createElement("li"); const b = document.createElement("button"); b.type = "button";
-    const left = document.createElement("span"); left.textContent = h.lead.name + ", " + h.lead.company;
-    const badge = document.createElement("span"); const t = tempOf(h.score); badge.className = "badge " + t; badge.textContent = h.score;
-    b.append(left, badge); b.addEventListener("click", () => renderResult(h.result, h.lead));
-    li.appendChild(b); list.appendChild(li);
-  });
-  $("historyBox").hidden = history.length === 0;
-}
-document.querySelectorAll("[data-sample]").forEach((b) => b.addEventListener("click", () => {
-  const s = SAMPLES[Number(b.dataset.sample)];
-  $("leadName").value = s.name; $("leadCompany").value = s.company; $("leadMessage").value = s.message;
-}));
-$("leadForm").addEventListener("submit", async (e) => {
-  e.preventDefault();
-  const lead = { name: $("leadName").value.trim(), company: $("leadCompany").value.trim(), message: $("leadMessage").value.trim() };
-  if (!lead.name || !lead.company || !lead.message) {
-    $("leadResult").innerHTML = ""; const err = document.createElement("div"); err.className = "result error";
-    err.textContent = "Fill in the name, company, and message to score a lead."; $("leadResult").appendChild(err); return;
-  }
-  setLoading($("scoreBtn"), true);
-  $("leadResult").innerHTML = '<div class="result"><span class="typing" aria-label="Scoring"><span></span><span></span><span></span></span></div>';
-  try {
-    const result = await post("/score-lead", lead);
-    renderResult(result, lead);
-    if (typeof result.score === "number") { history.unshift({ lead, result, score: Math.round(result.score) }); renderHistory(); }
-  } catch (err) {
-    const box = $("leadResult"); box.innerHTML = ""; const d = document.createElement("div"); d.className = "result error";
-    d.textContent = friendly(err.message); box.appendChild(d);
-  } finally { setLoading($("scoreBtn"), false); }
-});
+try { const t = localStorage.getItem("theme"); if (t) document.documentElement.dataset.theme = t; } catch (e) {}
+document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeDrawer(); });
+(async () => {
+  const id = location.hash.slice(1); if (VIEWS.some((x) => x[0] === id)) S.view = id;
+  document.getElementById("view").append(h("p", { class: "muted" }, "Loading..."));
+  await refresh();
+})();
 </script>
 </body>
 </html>

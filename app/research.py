@@ -4,6 +4,9 @@ Run from the project folder:
     python -m app.research discover [n_queries]       find candidate companies (first query list)
     python -m app.research discover_more [n_queries]  find more companies (second query list)
     python -m app.research enrich [n_companies]       visit websites, collect evidence, score
+    python -m app.research requalify                  retry companies rejected only for an unverified US location
+    python -m app.research discover_file [n_queries]  find more companies (queries in data/queries_extra.txt)
+    python -m app.research recheck                    reject companies whose US location is not verified
     python -m app.research status                     count companies by status
 
 Key idea: every fact we store has a QUOTE and a SOURCE URL, and the code checks that the
@@ -217,7 +220,7 @@ NAME_STOP = {"the", "and", "of", "brand", "brands", "company", "inc", "llc", "sh
 
 QUALIFY_SYSTEM = """You qualify a company as a sales lead for Ledgerwise, a US bookkeeping firm for e-commerce brands with about $1M to $10M yearly revenue and 5 to 50 employees. The person to contact is the founder, the COO, or whoever runs finance.
 Use ONLY the sources provided. For each criterion give value true, false or null (null means not stated in the sources) and an EXACT quote copied from a source (max 200 characters). Never guess.
-Return JSON with these keys: description (one sentence about what the company sells), sells_online ({"value":..., "quote":"..."}), us_based (same shape), size_fit (same shape; true if revenue is about $1M to $10M or 5 to 50 employees), channels (list from: shopify, amazon, own site, wholesale, retail), contact ({"name":"...","role":"founder|coo|cfo|finance|other","quote":"..."} or null)."""
+Return JSON with these keys: description (one sentence about what the company sells), sells_online ({"value":..., "quote":"..."}), us_based (same shape; true if a source shows a US location such as a US city and state, a US address, "USA" or "Made in the USA"; false if it shows a location outside the US), size_fit (same shape; true if revenue is about $1M to $10M or 5 to 50 employees), channels (list from: shopify, amazon, own site, wholesale, retail), contact ({"name":"...","role":"founder|coo|cfo|finance|other","quote":"..."} or null)."""
 
 TRIGGER_POINTS = {"hiring_finance": 30, "raised_money": 25, "expanding_channels": 20}
 
@@ -296,6 +299,10 @@ def enrich_one(db, company):
     for r in contact_res.get("results", []):
         sources.append((r["url"], r.get("title", "") + ". " + r.get("content", "")))
 
+    hq_res = cached_search(f"{name} headquarters location where is it based", max_results=3)
+    for r in hq_res.get("results", []):
+        sources.append((r["url"], r.get("title", "") + ". " + r.get("content", "")))
+
     prompt = "\n\n".join(f"SOURCE {i} ({u}):\n{t}" for i, (u, t) in enumerate(sources))
     out = llm_json(f"Company: {name}\n\n{prompt}", QUALIFY_SYSTEM)
     if not out:
@@ -310,7 +317,7 @@ def enrich_one(db, company):
     contact_ok = bool(contact and contact.get("name") and contact_url)
 
     score, parts = score_company(sells, us, size, contact_ok, [t["trigger_kind"] for t in triggers])
-    status = "qualified" if (sells is True and score >= 60) else "rejected"
+    status = "qualified" if (sells is True and us is True and score >= 60) else "rejected"
 
     rows = []
     def add(claim, crit, url):
@@ -352,6 +359,39 @@ def enrich_all(limit=None):
             print("   skipped:", str(e)[:120])
 
 
+def recheck():
+    """Apply the current rule (US location must be verified) to companies qualified earlier."""
+    db = get_db()
+    changed = 0
+    for c in db.table("companies").select("id,name").eq("status", "qualified").execute().data:
+        ev = db.table("evidence").select("claim").eq("company_id", c["id"]).execute().data
+        if not any(e["claim"] == "Based in the US" for e in ev):
+            db.table("companies").update({"status": "rejected",
+                "score_breakdown": {"reason": "US location not verified"}}).eq("id", c["id"]).execute()
+            print("   rejected (US not verified):", c["name"])
+            changed += 1
+    print("changed:", changed)
+    status()
+
+
+def requalify():
+    """Give companies rejected only because the US location was not verified a second chance."""
+    db = get_db()
+    n = 0
+    for c in db.table("companies").select("id,score_breakdown").eq("status", "rejected").execute().data:
+        if (c.get("score_breakdown") or {}).get("reason") == "US location not verified":
+            db.table("companies").update({"status": "new", "score": None, "score_breakdown": None}).eq("id", c["id"]).execute()
+            n += 1
+    print("back to 'new' for another try:", n)
+
+
+def discover_file(n=None):
+    """Find more companies using the queries in data/queries_extra.txt (one query per line)."""
+    path = Path(__file__).resolve().parent.parent / "data" / "queries_extra.txt"
+    queries = [q.strip() for q in path.read_text(encoding="utf-8").splitlines() if q.strip()]
+    discover(n, queries)
+
+
 def status():
     rows = get_db().table("companies").select("status").execute().data
     print(dict(Counter(r["status"] for r in rows)), "total:", len(rows))
@@ -365,5 +405,8 @@ if __name__ == "__main__":
         "discover_more": lambda: discover(n, MORE_QUERIES),
         "enrich": lambda: enrich_all(n),
         "status": status,
+        "recheck": recheck,
+        "requalify": requalify,
+        "discover_file": discover_file,
     }
     actions.get(cmd, lambda: print(__doc__))()

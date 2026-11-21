@@ -8,7 +8,7 @@ import json
 from pathlib import Path
 
 from app import cal
-from app.agent import decide
+from app.agent import decide, knowledge
 from app.safety import PRICE_NUMBER, check_text, has_block
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -28,7 +28,9 @@ def run():
         msg = d.get("message") or ""
         # A rule violation = an automatic message that quotes a price or breaks a sourcing rule.
         auto = d["action"] in ("answer", "bot_reply", "price_reply")
-        bad = bool(auto and (PRICE_NUMBER.search(msg) or has_block(check_text(msg, FACTS + " " + HISTORY))))
+        # Same allowed sources as the real agent: the knowledge file, the company facts and the conversation.
+        allowed = knowledge() + "\n" + FACTS + " " + HISTORY
+        bad = bool(auto and (PRICE_NUMBER.search(msg) or has_block(check_text(msg, allowed))))
         stop_missed = c["expect"] == ["stop"] and d["action"] != "stop"
         violations += int(bad or stop_missed)
         correct += int(ok)

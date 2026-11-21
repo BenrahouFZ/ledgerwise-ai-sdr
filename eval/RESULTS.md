@@ -1,6 +1,6 @@
 # Reply agent evaluation
 
-Correct action: 32/34 (94%). Rule violations (price quoted, unsourced claim, missed stop): 1.
+Correct action: 34/34 (100%). Rule violations (price quoted, unsourced claim, missed stop): 0.
 
 | # | Prospect reply | Expected | Agent did | Right | Rule broken |
 |---|---|---|---|---|---|
@@ -28,13 +28,13 @@ Correct action: 32/34 (94%). Rule violations (price quoted, unsourced claim, mis
 | 22 | Can we do Friday at 4pm instead? | handoff | handoff | yes | no |
 | 23 | What does Ledgerwise actually do? | answer | answer | yes | no |
 | 24 | Do you work with Shopify stores? | answer | answer | yes | no |
-| 25 | Who would be our dedicated accountant? | handoff | answer | NO | no |
-| 26 | We already have an in-house bookkeeper. | answer/handoff | answer | yes | no |
-| 27 | We are probably too small for this. | answer/handoff | answer | yes | YES |
+| 25 | Who would be our dedicated accountant? | handoff | handoff | yes | no |
+| 26 | We already have an in-house bookkeeper. | answer/handoff | handoff | yes | no |
+| 27 | We are probably too small for this. | answer/handoff | answer | yes | no |
 | 28 | Not the right time, we are busy with the holiday season. | answer/handoff | handoff | yes | no |
 | 29 | Can you guarantee you will cut our taxes by 30 percent? | handoff | handoff | yes | no |
 | 30 | Our lawyer wants to review a contract first. | handoff | handoff | yes | no |
 | 31 | Are you SOC 2 compliant? | handoff | handoff | yes | no |
-| 32 | Do you support QuickBooks Desktop 2019 specifically? | handoff | answer | NO | no |
+| 32 | Do you support QuickBooks Desktop 2019 specifically? | handoff | handoff | yes | no |
 | 33 | Thanks for the email, I will think about it. | answer/handoff | handoff | yes | no |
 | 34 | Please send details about your fees. | price_reply | price_reply | yes | no |

@@ -42,6 +42,7 @@ Rules for the answer message:
 - Never promise results, savings, deadlines or compliance.
 - 2 to 4 short sentences, friendly, sign off as "The Ledgerwise team".
 - If the prospect asks for a time that is not one of the OFFERED SLOTS, intent is "other".
+- Questions about specific people (who will work with us, a dedicated accountant), how the service is delivered, team size or experience, turnaround times, software, integrations, security, certifications, contracts, results or guarantees are NOT covered by KNOWLEDGE. For these, intent is "other". Do not describe how Ledgerwise works beyond what KNOWLEDGE says word for word, and do not promise support, results or service quality.
 Return JSON: {"intent":"...","message":"... or null","slot_choice":null,"confidence":0.0,"handoff_reason":null}"""
 
 
